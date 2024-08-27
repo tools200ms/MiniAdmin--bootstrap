@@ -1,0 +1,56 @@
+#!/sbin/openrc-run
+
+depend() {
+	need localmount sysfs cgroups
+	after lxd firewall ntp-client
+}
+
+_control() {
+	if [ $1x != 'start'x ] && [ $1x != 'stop'x ] && [ $1x != 'restart' ]; then
+		ebegin "Not allowed parameter: $1"
+		exit 1
+	fi
+	if [ $2x != 'RUNNING'x ] && [ $2x != 'STOPPED'x ]; then
+		ebegin "Not allowed parameter: $2"
+		exit 2
+	fi
+
+	operation=$1
+	exp_state=$2
+
+	cont_op=""
+	
+	for cont in $(lxc-ls); do
+		cstate=$(lxc-info -n $cont | egrep '^State:')
+		
+		if [ -z '$cstate' ]; then 
+			ebegin "Unknown STATE for continer: $cont"
+			continue;
+		fi
+		
+		case $cstate in
+			*$exp_state)
+				ebegin "Continer '$cont' is already $exp_state, no action"
+			;;
+			*) # expecting RUNNING or STOPPED
+				ebegin "Continer $cont - $operation-ing"
+				cont_op=$cont_op' '$cont
+				lxc-$operation -n $cont
+			;;
+		esac
+	done;
+
+	for scont in $cont_op; do
+		lxc-wait -n $scont -t 5 -s $exp_state || ebegin "Failed to launch $scont"
+	done
+}
+
+start() {
+	_control 'start' 'RUNNING'
+	eend 0
+}
+
+stop() {
+	_control 'stop' 'STOPPED'
+	eend 0
+}
