@@ -1,0 +1,11 @@
+
+*~
+pkg/*
+iso/*
+
+# JetBrains IDE
+.idea/
+
+# Development IDEs:
+.kdev4/*
+*.kdev4
