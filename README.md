@@ -9,3 +9,4 @@ We focus on solutions based on devices such as Raspberry Pi and Pine64, as these
 
 [Alpine Linux release branches](https://alpinelinux.org/releases/)
 
+[Headless Alpine Linux Bootstrap](https://github.com/macmpi/alpine-linux-headless-bootstrap/)
